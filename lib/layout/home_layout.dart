@@ -2,14 +2,8 @@ import 'package:conditional_builder/conditional_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:todo_app/modules/archived_tasks/archived_tasks.dart';
-import 'package:todo_app/modules/done_tasks/done_tasks.dart';
-import 'package:todo_app/modules/new_tasks/new_tasks.dart';
 import 'package:todo_app/shared/cubit/cubit.dart';
 import 'package:todo_app/shared/cubit/states.dart';
-
-import '../shared/components/constants.dart';
 
 class HomeLayout extends StatelessWidget {
   var scaffoldKey = GlobalKey<ScaffoldState>();
@@ -19,11 +13,7 @@ class HomeLayout extends StatelessWidget {
   var timeController = TextEditingController();
   var dateController = TextEditingController();
 
-  /* @override
-  void initState() {
-    super.initState();
-    createDatabase();
-  }*/
+  HomeLayout({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -53,18 +43,6 @@ class HomeLayout extends StatelessWidget {
                   if (formKey.currentState!.validate()) {
                     cubit.insertToDatabase(titleController.text,
                         dateController.text, timeController.text);
-                    /*   insertToDatabase(
-                      titleController.text,
-                      dateController.text,
-                      timeController.text,
-                    ).then((value) => fetchTasksFromDatabase(db).then((value) {
-                          Navigator.pop(context);
-                          */ /*setState(() {
-                    tasks = value;
-
-                    isBottomSheetShown = false;
-                  });*/ /*
-                        }));*/
                   }
                 } else {
                   scaffoldKey.currentState
@@ -171,9 +149,6 @@ class HomeLayout extends StatelessWidget {
               currentIndex: cubit.currentIndex,
               onTap: (index) {
                 cubit.changeBottomNavIndex(index);
-                /* setState(() {
-              currentIndex = index;
-            });*/
               },
               items: const [
                 BottomNavigationBarItem(icon: Icon(Icons.task), label: "Tasks"),

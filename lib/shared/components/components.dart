@@ -1,3 +1,4 @@
+import 'package:conditional_builder/conditional_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:todo_app/shared/components/constants.dart';
 import 'package:todo_app/shared/cubit/cubit.dart';
@@ -61,4 +62,25 @@ Widget taskItem(task, context) => Dismissible(
       onDismissed: (direction) {
         AppCubit.getCubitInstance(context).deleteTask(task['id']);
       },
+    );
+
+Widget tasksScreenBuilder(String message, tasksList) => ConditionalBuilder(
+      condition: tasksList.isNotEmpty,
+      builder: (context) => ListView.separated(
+        itemBuilder: (context, index) => taskItem(tasksList[index], context),
+        separatorBuilder: (context, index) => Container(
+          width: double.infinity,
+          height: 1,
+          color: Colors.grey[300],
+        ),
+        itemCount: tasksList.length,
+      ),
+      fallback: (context) => Center(
+          child: Text(
+        message,
+        style: const TextStyle(
+          color: Colors.grey,
+          fontSize: 32,
+        ),
+      )),
     );

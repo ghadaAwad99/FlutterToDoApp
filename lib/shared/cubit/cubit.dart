@@ -1,4 +1,3 @@
-import 'package:bloc/bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sqflite/sqflite.dart';
@@ -22,9 +21,9 @@ class AppCubit extends Cubit<AppStates> {
   bool isBottomSheetShown = false;
 
   List<Widget> screens = [
-    NewTasksScreen(),
-    DoneTasksScreen(),
-    ArchivedTasksScreen(),
+    const NewTasksScreen(),
+    const DoneTasksScreen(),
+    const ArchivedTasksScreen(),
   ];
   List<String> titles = ['New Tasks', 'Done Tasks', 'Archived Tasks'];
 
@@ -45,13 +44,11 @@ class AppCubit extends Cubit<AppStates> {
       database
           .execute(
               'CREATE TABLE Tasks (id INTEGER PRIMARY KEY, title TEXT, date TEXT, time TEXT, status TEXT)')
-          .then((value) {
-        print('table created');
-      }).catchError((error) {
+          .then((value) {})
+          .catchError((error) {
         print('error on creating table ${error.toString()}');
       });
     }, onOpen: (database) {
-      print('database opened');
       getTasksFromDatabase(database);
     }).then((value) {
       db = value;
@@ -65,7 +62,6 @@ class AppCubit extends Cubit<AppStates> {
           .rawInsert(
               'INSERT INTO Tasks(title, date, time, status) VALUES("$title", "$date", "$time", "${Constants.NEW}")')
           .then((value) {
-        print("$value inserted");
         emit(AppInsertToDatabaseState());
         getTasksFromDatabase(db);
       }).catchError((error) {
@@ -80,7 +76,6 @@ class AppCubit extends Cubit<AppStates> {
     archivedTasksList = [];
     emit(AppIsLoadingState());
     await db.rawQuery('SELECT * FROM Tasks').then((value) {
-      print("tasksList $value");
       value.forEach((task) {
         if (task['status'] == Constants.NEW) {
           newTasksList.add(task);
