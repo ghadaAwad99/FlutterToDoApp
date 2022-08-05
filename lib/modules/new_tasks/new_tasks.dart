@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:todo_app/shared/components.dart';
-import 'package:todo_app/shared/constants.dart';
+import 'package:todo_app/shared/components/components.dart';
+
+import '../../shared/components/constants.dart';
 
 class NewTasksScreen extends StatelessWidget {
   const NewTasksScreen({Key? key}) : super(key: key);
