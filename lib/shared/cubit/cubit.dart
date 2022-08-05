@@ -15,7 +15,10 @@ class AppCubit extends Cubit<AppStates> {
   static AppCubit getCubitInstance(context) => BlocProvider.of(context);
 
   late Database db;
-  List<Map> tasksList = [];
+
+  List<Map> newTasksList = [];
+  List<Map> doneTasksList = [];
+  List<Map> archivedTasksList = [];
   bool isBottomSheetShown = false;
 
   List<Widget> screens = [
@@ -49,11 +52,7 @@ class AppCubit extends Cubit<AppStates> {
       });
     }, onOpen: (database) {
       print('database opened');
-      getTasksFromDatabase(database).then((value) {
-        tasksList = value;
-        print(tasksList);
-        emit(AppGetFromDatabaseState());
-      });
+      getTasksFromDatabase(database);
     }).then((value) {
       db = value;
       emit(AppCreateDatabaseState());
@@ -64,23 +63,50 @@ class AppCubit extends Cubit<AppStates> {
     await db.transaction((txn) async {
       txn
           .rawInsert(
-              'INSERT INTO Tasks(title, date, time, status) VALUES("$title", "$date", "$time", "new")')
+              'INSERT INTO Tasks(title, date, time, status) VALUES("$title", "$date", "$time", "${Constants.NEW}")')
           .then((value) {
         print("$value inserted");
         emit(AppInsertToDatabaseState());
-        getTasksFromDatabase(db).then((value) {
-          tasksList = value;
-          print(tasksList);
-          emit(AppGetFromDatabaseState());
-        });
+        getTasksFromDatabase(db);
       }).catchError((error) {
         print(error.toString());
       });
     });
   }
 
-  Future<List<Map>> getTasksFromDatabase(db) async {
+  void getTasksFromDatabase(db) async {
+    newTasksList = [];
+    doneTasksList = [];
+    archivedTasksList = [];
     emit(AppIsLoadingState());
-    return await db.rawQuery('SELECT * FROM Tasks');
+    await db.rawQuery('SELECT * FROM Tasks').then((value) {
+      print("tasksList $value");
+      value.forEach((task) {
+        if (task['status'] == Constants.NEW) {
+          newTasksList.add(task);
+        } else if (task['status'] == Constants.DONE) {
+          doneTasksList.add(task);
+        } else if (task['status'] == Constants.ARCHIVED) {
+          archivedTasksList.add(task);
+        }
+      });
+      emit(AppGetFromDatabaseState());
+    });
+  }
+
+  void updateDatabase({required String status, required int id}) async {
+    await db.rawUpdate(
+        'UPDATE tasks SET status = ? WHERE id = ?', [status, id]).then((value) {
+      emit(AppUpdateDatabaseState());
+      getTasksFromDatabase(db);
+    });
+  }
+
+  void deleteTask(taskId) async {
+    await db
+        .rawDelete('DELETE FROM Tasks WHERE id = ?', [taskId]).then((value) {
+      emit(AppDeleteDatabaseState());
+      getTasksFromDatabase(db);
+    });
   }
 }
